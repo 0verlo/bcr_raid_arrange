@@ -30,14 +30,18 @@ class Team_Info(object):
         ##遍历Box数据部分获取玩家名字
         for rx in range(INFO.BOXSHEET_DATA_START_ROW,INFO.BOXSHEET_DATA_END_ROW+1):
             playerName = self.__box_sh.cell_value(rx,INFO.BOXSHEET_PLAYER_COL)
-            if '' != playerName:
-                #遍历数据区域获取角色名并取值存储在对应结构体中
-                for cx in range(INFO.BOXSHEET_DATA_START_COL,INFO.BOXSHEET_DATA_END_COL+1):
-                    characterName = self.__box_sh.cell_value(INFO.BOXSHEET_CHARACTER_ROW,cx)
-                    characterAttr = self.__box_sh.cell_value(rx,cx)
-                    #取得内容转为Dirct后再存储
-                    attrDirct = self.__reg_conv(characterAttr)
+            if '' == playerName:
+                print("Info gose wrong in (%d,%d)")
+                continue
+            #遍历数据区域获取角色名并取值存储在对应结构体中
+            for cx in range(INFO.BOXSHEET_DATA_START_COL,INFO.BOXSHEET_DATA_END_COL+1):
+                characterName = self.__box_sh.cell_value(INFO.BOXSHEET_CHARACTER_ROW,cx)
+                characterAttr = self.__box_sh.cell_value(rx,cx)
+                #取得内容转为Dirct后再存储
+                attrDirct = self.__reg_conv(characterAttr)
+                if 0 != attrDirct["star"]:
                     self.__box_info[playerName][characterName] = attrDirct
+
         ##遍历Team数据部分获取作业
         teamsh_info={"name":[],"index":[],"end":0}
         #获取boss名字及其作业对应行数
@@ -50,13 +54,7 @@ class Team_Info(object):
             if ("" != data)&(teamsh_info["end"] < rx):
                 teamsh_info["end"]=rx+1
         teamsh_info["index"].append(teamsh_info["end"])
-        """
-        #test
-        for i in range(0,teamsh_info["name"].__len__()):
-            print(teamsh_info["name"])
-            print(teamsh_info["index"])
-            print(teamsh_info["end"])
-        """
+
         for boss_num in range(0,teamsh_info["name"].__len__()):
             boss_name = teamsh_info["name"][boss_num]
             if boss_name in self.__team_set:
@@ -84,8 +82,8 @@ class Team_Info(object):
                 #print("")
         #print(self.__team_set)
 
-            #XXX:增加队伍的函数抽出来
-            #append字典到list上面
+        #XXX:增加队伍的函数抽出来
+        #append字典到list上面
 
     #### 测试用遍历打印box结构体 ####
     def test_traverse_sheet(self):
@@ -234,7 +232,8 @@ class Arrange_Set(object):
             player_with_set = list(set(player_with_set).union(set(self.__team_set["comb"][index]["player"])))
             #print(len(player_with_set),end="")
             #print(player_with_set)
-        player_left = list(set(player_with_set).difference(set(INFO.PLAYER_NAME))) 
+        player_left = list(set(INFO.PLAYER_NAME).difference(set(player_with_set))) 
+        #print(player_left)
         if [] != player_left: 
             print("Set not enough! ",end="")
             print(player_left,end="")
